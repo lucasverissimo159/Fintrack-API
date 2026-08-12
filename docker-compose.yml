@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - '3000:3000'
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - DB_PATH=/usr/src/app/data/finance.db
+      - JWT_SECRET=${JWT_SECRET:-change-this-in-production}
+      - JWT_EXPIRES_IN=7d
+      - LOG_LEVEL=info
+    volumes:
+      - finance_data:/usr/src/app/data
+      - finance_logs:/usr/src/app/logs
+    restart: unless-stopped
+
+volumes:
+  finance_data:
+  finance_logs:

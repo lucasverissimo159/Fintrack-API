@@ -1,0 +1,209 @@
+{
+  "info": {
+    "name": "FinTrack API",
+    "description": "Collection for testing the FinTrack API — auth, categories, transactions, budgets and the Power BI/Power Apps-ready analytics endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "token", "value": "" },
+    { "key": "apiKey", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Ana Silva\",\n  \"email\": \"ana@example.com\",\n  \"password\": \"senha12345\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"ana@example.com\",\n  \"password\": \"senha12345\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] }
+          }
+        },
+        {
+          "name": "Regenerate API Key",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/api-key/regenerate", "host": ["{{baseUrl}}"], "path": ["api", "auth", "api-key", "regenerate"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/categories", "host": ["{{baseUrl}}"], "path": ["api", "categories"] }
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Pets\",\n  \"type\": \"expense\",\n  \"color\": \"#0EA5E9\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/categories", "host": ["{{baseUrl}}"], "path": ["api", "categories"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Create Transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"categoryId\": 1,\n  \"type\": \"expense\",\n  \"amount\": 89.90,\n  \"description\": \"Supermercado\",\n  \"date\": \"2026-08-01\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/transactions", "host": ["{{baseUrl}}"], "path": ["api", "transactions"] }
+          }
+        },
+        {
+          "name": "List Transactions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Process Recurring Transactions",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/transactions/process-recurring", "host": ["{{baseUrl}}"], "path": ["api", "transactions", "process-recurring"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Budgets",
+      "item": [
+        {
+          "name": "Create Budget",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"categoryId\": 1,\n  \"amount\": 500,\n  \"period\": \"monthly\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/budgets", "host": ["{{baseUrl}}"], "path": ["api", "budgets"] }
+          }
+        },
+        {
+          "name": "List Budgets",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/budgets", "host": ["{{baseUrl}}"], "path": ["api", "budgets"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics (Power BI ready)",
+      "item": [
+        {
+          "name": "Summary",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/summary?api_key={{apiKey}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "summary"],
+              "query": [{ "key": "api_key", "value": "{{apiKey}}" }]
+            }
+          }
+        },
+        {
+          "name": "By Category",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/by-category?api_key={{apiKey}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "by-category"],
+              "query": [{ "key": "api_key", "value": "{{apiKey}}" }]
+            }
+          }
+        },
+        {
+          "name": "Monthly Trend",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/monthly-trend?api_key={{apiKey}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "monthly-trend"],
+              "query": [{ "key": "api_key", "value": "{{apiKey}}" }]
+            }
+          }
+        },
+        {
+          "name": "Cash Flow",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/cash-flow?api_key={{apiKey}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "cash-flow"],
+              "query": [{ "key": "api_key", "value": "{{apiKey}}" }]
+            }
+          }
+        },
+        {
+          "name": "Export CSV",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/export/csv?api_key={{apiKey}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "export", "csv"],
+              "query": [{ "key": "api_key", "value": "{{apiKey}}" }]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
