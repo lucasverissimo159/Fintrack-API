@@ -20,7 +20,6 @@ const categoryService = {
   async delete(userId, id) {
     const existing = categoryRepository.findById(id, userId);
     if (!existing) throw new ApiError(404, 'Category not found');
-    if (existing.is_default) throw new ApiError(400, 'Default categories cannot be deleted');
 
     const txCount = categoryRepository.countTransactions(id);
     if (txCount > 0) {
@@ -34,6 +33,8 @@ const categoryService = {
     if (budgetCount > 0) {
       throw new ApiError(409, 'Cannot delete category: it has a budget attached. Delete the budget first.');
     }
+
+    if (existing.is_default) throw new ApiError(400, 'Default categories cannot be deleted');
 
     categoryRepository.delete(id, userId);
   },
