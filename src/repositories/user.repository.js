@@ -1,10 +1,12 @@
 const db = require('../database/db');
+const env = require('../config/env');
 
 const userRepository = {
   create({ name, email, passwordHash, apiKey }) {
+    const storedApiKeyHash = env.hashApiKey(apiKey);
     const info = db
       .prepare('INSERT INTO users (name, email, password_hash, api_key) VALUES (?, ?, ?, ?)')
-      .run(name, email, passwordHash, apiKey);
+      .run(name, email, passwordHash, storedApiKeyHash);
     return this.findById(info.lastInsertRowid);
   },
 
@@ -17,11 +19,13 @@ const userRepository = {
   },
 
   findByApiKey(apiKey) {
-    return db.prepare('SELECT * FROM users WHERE api_key = ?').get(apiKey);
+    const storedApiKeyHash = env.hashApiKey(apiKey);
+    return db.prepare('SELECT * FROM users WHERE api_key = ?').get(storedApiKeyHash);
   },
 
   updateApiKey(id, apiKey) {
-    db.prepare("UPDATE users SET api_key = ?, updated_at = datetime('now') WHERE id = ?").run(apiKey, id);
+    const storedApiKeyHash = env.hashApiKey(apiKey);
+    db.prepare("UPDATE users SET api_key = ?, updated_at = datetime('now') WHERE id = ?").run(storedApiKeyHash, id);
     return this.findById(id);
   },
 };
