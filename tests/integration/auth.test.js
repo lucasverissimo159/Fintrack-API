@@ -85,3 +85,21 @@ test('POST /api/auth/api-key/regenerate issues a new key', async () => {
   assert.ok(res.body.data.api_key);
   assert.notStrictEqual(res.body.data.api_key, user.api_key);
 });
+
+test('registered API key is only persisted as a hash, while the client still receives the plain generated key', async () => {
+  const email = `hash-key.${Date.now()}@example.com`;
+  const registerRes = await request(app).post('/api/auth/register').send({
+    name: 'Hash Key User',
+    email,
+    password: 'senha12345',
+  });
+
+  const generatedKey = registerRes.body.data.user.api_key;
+  assert.ok(generatedKey);
+
+  const db = require('../../src/database/db');
+  const row = db.prepare('SELECT api_key FROM users WHERE email = ?').get(email);
+  assert.ok(row);
+  assert.notStrictEqual(row.api_key, generatedKey);
+  assert.strictEqual(row.api_key.length, 64);
+});
