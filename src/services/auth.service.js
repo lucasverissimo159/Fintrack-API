@@ -5,14 +5,15 @@ const userRepository = require('../repositories/user.repository');
 const categoryRepository = require('../repositories/category.repository');
 const defaultCategories = require('../database/seeds/defaultCategories');
 const ApiError = require('../utils/ApiError');
+const env = require('../config/env');
 
 function generateApiKey() {
   return crypto.randomBytes(24).toString('hex');
 }
 
 function generateToken(user) {
-  return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  return jwt.sign({ id: user.id, email: user.email }, env.jwtSecret, {
+    expiresIn: env.jwtExpiresIn,
   });
 }
 
@@ -30,7 +31,6 @@ const authService = {
     const apiKey = generateApiKey();
     const user = userRepository.create({ name, email, passwordHash, apiKey });
 
-    // Every new user starts with a ready-to-use set of income/expense categories
     for (const cat of defaultCategories) {
       categoryRepository.create({
         userId: user.id,
@@ -42,7 +42,10 @@ const authService = {
       });
     }
 
-    return { user: sanitizeUser(user), token: generateToken(user) };
+    const safeUser = sanitizeUser(user);
+    safeUser.api_key = apiKey;
+
+    return { user: safeUser, token: generateToken(user) };
   },
 
   async login({ email, password }) {
@@ -58,7 +61,9 @@ const authService = {
   async regenerateApiKey(userId) {
     const apiKey = generateApiKey();
     const user = userRepository.updateApiKey(userId, apiKey);
-    return sanitizeUser(user);
+    const safeUser = sanitizeUser(user);
+    safeUser.api_key = apiKey;
+    return safeUser;
   },
 
   async getProfile(userId) {
