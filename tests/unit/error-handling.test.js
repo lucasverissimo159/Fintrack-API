@@ -71,6 +71,15 @@ test('better-sqlite3 actually throws err.code = SQLITE_CONSTRAINT_UNIQUE on a ra
   db.prepare('DELETE FROM users WHERE id = ?').run(user.id);
 });
 
+test('missing routes include a request id in headers and error body', async () => {
+  const res = await request(app).get('/api/definitely-not-a-real-route');
+
+  assert.strictEqual(res.status, 404);
+  assert.ok(res.headers['x-request-id']);
+  assert.ok(res.body.requestId);
+  assert.strictEqual(res.body.success, false);
+});
+
 test('/health reports database status', async () => {
   const res = await request(app).get('/health');
   assert.strictEqual(res.status, 200);
